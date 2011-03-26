@@ -1,7 +1,7 @@
 {
-  "name": "wiki",
+  "name": "node-wiki",
   "description": "A wiki for NodeJS.",
-  "version": "0.0.0",
+  "version": "0.0.0-prototype",
   "homepage": "http://wiki.limpidtech.com/",
   "repository": {
     "type": "git",
