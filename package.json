@@ -1,0 +1,14 @@
+{
+  "name": "wiki",
+  "description": "A wiki for NodeJS.",
+  "version": "0.0.0",
+  "homepage": "http://wiki.limpidtech.com/",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/LimpidTech/node-wiki.git"
+  },
+  "author": "Brandon R. Stoner <monokrome@monokro.me> (http://monokro.me/)",
+  "engines": {
+    "node": "*"
+  }
+}

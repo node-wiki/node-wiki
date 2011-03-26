@@ -1,0 +1,6 @@
+*.komodoproject
+
+.*
+!.gitignore
+!.gitmodules
+
