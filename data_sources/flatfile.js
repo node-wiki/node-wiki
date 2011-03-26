@@ -24,10 +24,7 @@ module.exports = {
 
         // First we need to get the absoluet path to our root directory
         fs.realpath(source_settings.root, function get_realpath(err, absolute_root) {
-            if (err) {
-                callback(err)
-                return
-            }
+            if (err) throw err
 
             var full_search_path = [
                 absolute_root,
@@ -36,28 +33,18 @@ module.exports = {
 
             // Next, we need to verify that the requested path isn't above the root
             fs.realpath(full_search_path,
-                        function cfs (err, absolute_search_path) {
+                        function verify_secure_file (err, absolute_search_path) {
 
-                if (err) {
-                    callback(err)
-                    return
-                }
+                if (err) throw err
 
                 // This will only be true if our path is within our root
+                // @TODO: Use a real error here.
                 if (absolute_search_path.indexOf(absolute_root) !== 0)
-                {
-                    // @TODO: Use a real error here.
-                    callback('The provided path is potentially insecure.')
-                    return
-                }
+                    throw 'The provided path is potentially insecure.'
 
                 // Now, we can see if any matching files exist within this path.
                 fs.readdir(absolute_search_path, function (err, files) {
-                    if (err)
-                    {
-                        callback(err)
-                        return
-                    }
+                    if (err) throw err
 
                     for (file in files)
                     {
@@ -81,7 +68,7 @@ module.exports = {
                     }
 
                     // @TODO: Use a real error here.
-                    callback('File not found.')
+                    throw 'File not found.'
                 })
             })
 
