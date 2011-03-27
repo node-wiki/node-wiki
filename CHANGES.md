@@ -4,7 +4,7 @@ Change List
 0.0.01-prototype
 ----------------
 * Added a data source using git as a backend instead of the previous flat file support.
-* Modified flat file support in a few small ways. This will probably be deprecated soon.
+* Completely removed support for flat-file repositories.
 * Added an (untested) generic application in index.js for running standalone
 * Added another module for using the wiki as stack middleware by aliasing connect's middleware.
 
