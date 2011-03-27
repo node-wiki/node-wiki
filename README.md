@@ -12,9 +12,9 @@ Features:
 * Easily extending any site with a wiki using included middleware
 * Ability to host multiple wikis under different URLs with different settings
 * Storing pages in multiple backends, including drivers for:
-	* git *- depends on the [node-gitteh](https://github.com/libgit2/node-gitteh) [libgit2](http://libgit2.github.com/) bindings*
+	* git *- depends on the [node-gitteh][gitteh] [libgit2][libgit2] bindings*
 * Rendering of wiki pages with multiple markup formats, including drivers for:
-	* markdown *- depends on [node-markdown](https://github.com/andris9/node-markdown)*
+	* markdown *- depends on [node-markdown][node-markdown]*
 
 Usage:
 ------
@@ -38,4 +38,8 @@ Generally, it is best that you create a homepage for the wiki to use when a firs
     Hello, world.
 
 Now, go ahead and run your application through node. After running this code, you should have a server listening on port 8000. If your browser is on the same computer that you ran the code on, you can visit (http://localhost:8000/wiki/) and see that a new page exists. Otherwise, just visit http://your_machines_ip:8000/wiki/ in order to see your wiki. You should see a page that says "Hello, world." after requesting the homepage.
+
+[gitteh]: https://github.com/libgit2/node-gitteh "Gitteh; libgit2 bindings for node"
+[libgit2]: http://libgit2.github.com/ "libgit2; A linkable library for git"
+[node-markdown]: https://github.com/andris9/node-markdown "Markdown bindings for node"
 
