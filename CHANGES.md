@@ -1,6 +1,9 @@
 Change List
 ===========
 
+0.0.2-prototype
+---------------
+
 0.0.01-prototype
 ----------------
 * Added a data source using git as a backend instead of the previous flat file support.
