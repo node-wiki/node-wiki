@@ -37,5 +37,5 @@ Generally, it is best that you create a homepage for the wiki to use when a firs
 
     Hello, world.
 
-Now, go ahead and run your application through node. After running this code, you should have a server listening on port 8000. If your browser is on the same computer that you ran the code on, you can visit [http://localhost:8000/wiki/] and see that a new page exists. Otherwise, just visit http://your_machines_ip:8000/wiki/ in order to see your wiki. You should see a page that says "Hello, world." after requesting the homepage.
+Now, go ahead and run your application through node. After running this code, you should have a server listening on port 8000. If your browser is on the same computer that you ran the code on, you can visit (http://localhost:8000/wiki/) and see that a new page exists. Otherwise, just visit http://your_machines_ip:8000/wiki/ in order to see your wiki. You should see a page that says "Hello, world." after requesting the homepage.
 
