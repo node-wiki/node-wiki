@@ -4,6 +4,8 @@ Change List
 0.0.2-prototype
 ---------------
 
+* Added a bit more flexibility to git tree traversal
+* Updated markup system to assume unknown file extensions are raw html
 * Added a DEBUG level to the logger. This is the lowest value, so INFO doesn't show it.
 
 0.0.01-prototype
