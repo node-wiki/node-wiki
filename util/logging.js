@@ -4,6 +4,7 @@ module.exports = {
 
     // We default these with large intervals in effort to use custom levels
     levels: {
+        DEBUG: -1,
         INFO: 0,
         WARN: 90,
         ERROR: 100
