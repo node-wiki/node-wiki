@@ -19,8 +19,8 @@ function get_default_source_settings(settings) {
     var local_settings = settings.source || default_source_settings
 
     local_settings.root = path.join('.', settings.hostname + '.git')
-
     local_settings.author = settings.author || {}
+    local_settings.home_template = local_settings.home_template || 'templates/Home.md'
 
     return local_settings
 }
@@ -229,16 +229,24 @@ function iterate_tree (callback, repo, tree, conf, search_list) {
     }
 }
 
+/**
+ * Does some work with initializing our settings object for git.
+ */
+function setup_settings (_settings) {
+    settings = _settings || {}
+
+    settings.source = settings.source || get_default_source_settings(settings)
+
+    return settings
+}
+
 module.exports = {
     find: function find_file(callback, search_path, _settings) {
         var path_separator = path.join('a', 'b')[1], // Please add this to node, Ryah ;)
-            settings = _settings || {},
             attempted_create_repository = false,
             attempted_create_branch = false,
+            settings = setup_settings(_settings),
             repo, ref_list
-
-        settings.source = settings.source || get_default_source_settings(settings)
-        settings.source.home_template = settings.source.home_template || 'templates/Home.md'
 
         /**
          * Once the tree has been iterated and we have found the proper entry,
@@ -313,12 +321,35 @@ module.exports = {
             })
         }
 
+        open_repository(search_repository, settings)
+    },
+
+    update: function update_file (callback, filename, _settings) {
+        var path_separator = path.join('a', 'b')[1], // Please add this to node, Ryah ;)
+            settings = setup_settings(_settings)
+
+        function search_repository (repo, settings) {
+            repo.getReference(get_ref_location(settings), function reference_getter (err, ref) {
+                if (err) throw err
+
+                repo.getCommit(ref.target, function target_getter (err, target) {
+                    if (err) throw err
+
+                    target.getTree(function tree_getter (err, tree) {
+                        if (err) throw err
+
+                        iterate_tree(handle_matching_entry, repo, tree, filename.split(path_separator))
+                    })
+                })
+            })
+        }
 
         open_repository(search_repository, settings)
     },
 
-    update: function update_file (callback, filename, settings) {
-        
+    delete: function delete_file (callback, filename, _settings) {
+        var path_separator = path.join('a', 'b')[1], // Please add this to node, Ryah ;)
+            settings = setup_settings(_settings)
     },
 
     get: function get_file(callback, filename, _settings) {
