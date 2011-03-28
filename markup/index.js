@@ -3,9 +3,17 @@ var default_sources = require('wiki/data_sources/defaults'),
     
 module.exports = {
     get_by_name: function get_filter_by_name(name, settings) {
-        var markup_formats = settings.markup_formats || default_markup_formats
+        var markup_formats = settings.markup_formats || default_markup_formats,
+        renderer
 
-        return require(markup_formats[name])
+        try {
+            renderer = require(markup_formats[name])
+        }
+        catch (e) {
+            renderer = false
+        }
+
+        return renderer
     },
 
     render: function render_markup (callback, filename, settings)
@@ -23,7 +31,11 @@ module.exports = {
                 }
 
                 markup_filter = module.exports.get_by_name(file_data[1], settings)
-                markup_result = markup_filter(file_data[0])
+
+                if (markup_filter !== false)
+                    markup_result = markup_filter(file_data[0])
+                else
+                    markup_result = file_data[0]
 
                 callback(err, markup_result)
             }
