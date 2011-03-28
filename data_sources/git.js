@@ -1,8 +1,9 @@
 var git = require('gitteh')
     path = require('path'),
     fs = require('fs'),
-    logger = require('wiki/util/logging')
+    logger = require('wiki/util/logging'),
 
+    git_directory_attr = 16384,
     default_source_settings = {
         branch: 'master',
         create_repos: true,
@@ -43,13 +44,79 @@ function get_initial_template (filename, callback) {
     })
 }
 
+/**
+ * This is the part of the searching system that iterates recursively
+ * through the tree until we've found our search item.
+ */
+function iterate_tree (callback, tree, conf, search_list) {
+    conf = conf || {}
+
+    // We can override how matches are made with a custom validator
+    conf.validator = conf.validator || function def_validator (possibility, search_list) {
+        if (possibility == search_list[0])
+            return true
+
+        return false
+    }
+
+    for (var i=0; i < tree.entryCount; i++)
+    {
+        /**
+         * We've used a callback factory here in order to prevent any
+         * collisions in other searches that might be happening in
+         * serial with this one. The factory provides a closure that
+         * we can use to separate the global search list from this,
+         * one and therefore every iteration will only work on it's
+         * proper search list.
+         */
+
+        tree.getEntry(i, (function get_entry_factory (search_list) {
+            return function get_entry (err, entry) {
+                if (err) throw err
+
+                if (search_list.length < 1)
+                    throw 'File does not exist in git repository.'
+
+                // First, check if this entry is relevant.
+                if (conf.validator(entry.filename, search_list))
+                {
+                    // Now, specific logic for trees or files.
+                    if (entry.attributes == git_directory_attr
+                        && entry.filename == search_list[0])
+                    {
+                        search_list.shift()
+
+                        if (search_list.length === 0)
+                        {
+                            callback(entry, search_list.length)
+                        }
+                        else
+                        {
+                            repo.getTree(entry.id, function get_next_tree(err, tree) {
+                                if (err) throw err
+
+                                iterate_tree(callback, tree, conf, search_list)
+                            })
+                        }
+                    }
+                    else if (entry.attributes != git_directory_attr
+                             && search_list.length === 1)
+                    {
+                        callback(entry, search_list.length)
+                    }
+                }
+            }
+
+        })(search_list))
+    }
+}
+
 module.exports = {
     find: function find_file(callback, search_path, _settings) {
         var path_separator = path.join('a', 'b')[1], // Please add this to node, Ryah ;)
             settings = _settings || {},
             attempted_create_repository = false,
             attempted_create_branch = false,
-            git_directory_attr = 16384,
             repo, ref_location, ref_list
 
         settings.source = settings.source || get_default_source_settings(settings)
@@ -183,65 +250,6 @@ module.exports = {
         }
 
         /**
-         * This is the part of the searching system that iterates recursively
-         * through the tree until we've found our search item.
-         */
-        function iterate_tree (tree, search_list) {
-            for (var i=0; i < tree.entryCount; i++)
-            {
-                /**
-                 * We've used a callback factory here in order to prevent any
-                 * collisions in other searches that might be happening in
-                 * serial with this one. The factory provides a closure that
-                 * we can use to separate the global search list from this,
-                 * one and therefore every iteration will only work on it's
-                 * proper search list.
-                 */
-
-                tree.getEntry(i, (function get_entry_factory (search_list) {
-                    return function get_entry (err, entry) {
-                        if (err) throw err
-    
-                        if (search_list.length < 1)
-                            throw ([search_path,
-                                    'not found in ',
-                                    settings.source.root].join(' '))
-    
-                        // First, check if this entry is relevant.
-                        if (entry.filename.indexOf(search_list[0]) === 0)
-                        {
-                            // Now, specific logic for trees or files.
-                            if (entry.attributes == git_directory_attr
-                                && entry.filename == search_list[0])
-                            {
-                                search_list.shift()
-
-                                if (search_list.length === 0)
-                                {
-                                    handle_matching_entry(entry)
-                                }
-                                else
-                                {
-                                    repo.getTree(entry.id, function get_next_tree(err, tree) {
-                                        if (err) throw err
-
-                                        iterate_tree(tree, search_list)
-                                    })
-                                }
-                            }
-                            else if (entry.attributes != git_directory_attr
-                                     && search_list.length === 1)
-                            {
-                                handle_matching_entry(entry)
-                            }
-                        }
-                    }
-
-                })(search_list))
-            }
-        }
-
-        /**
          * Once a repository has been succesfully verified, this goes ahead and
          * finds the requested file within our repository - or throws an error
          * if the file does not exist.
@@ -259,7 +267,27 @@ module.exports = {
                     target.getTree(function tree_getter(err, tree) {
                         if (err) throw err
 
-                        iterate_tree(tree, search_path.split(path_separator))
+                        /**
+                         * Iterate through the tree using a custom validator
+                         * that provides us the ability to match filenames that
+                         * don't have their extensions provided.
+                         */
+                        iterate_tree(handle_matching_entry, tree, {
+                            validator: function validate_filename (possibility, search_list) {
+                                // All exact matches are matches.
+                                if (possibility == search_list[0])
+                                    return true
+
+                                // Anything that starts with the expected value matches.
+                                if (search_list.length === 1
+                                    && possibility.indexOf(search_list[0] + '.') === 0)
+                                {
+                                    return true
+                                }
+
+                                return false
+                            }
+                        }, search_path.split(path_separator))
                     })
                 })
             })
