@@ -48,7 +48,7 @@ function get_initial_template (filename, callback) {
  * This is the part of the searching system that iterates recursively
  * through the tree until we've found our search item.
  */
-function iterate_tree (callback, tree, conf, search_list) {
+function iterate_tree (callback, repo, tree, conf, search_list) {
     conf = conf || {}
 
     // We can override how matches are made with a custom validator
@@ -73,34 +73,23 @@ function iterate_tree (callback, tree, conf, search_list) {
         tree.getEntry(i, (function get_entry_factory (search_list) {
             return function get_entry (err, entry) {
                 if (err) throw err
-
-                if (search_list.length < 1)
-                    throw 'File does not exist in git repository.'
+                if (search_list.length < 1) return
 
                 // First, check if this entry is relevant.
                 if (conf.validator(entry.filename, search_list))
                 {
+                    search_list.shift()
+
                     // Now, specific logic for trees or files.
-                    if (entry.attributes == git_directory_attr
-                        && entry.filename == search_list[0])
+                    if (entry.attributes == git_directory_attr && search_list.length > 0)
                     {
-                        search_list.shift()
+                        repo.getTree(entry.id, function get_next_tree(err, tree) {
+                            if (err) throw err
 
-                        if (search_list.length === 0)
-                        {
-                            callback(entry, search_list.length)
-                        }
-                        else
-                        {
-                            repo.getTree(entry.id, function get_next_tree(err, tree) {
-                                if (err) throw err
-
-                                iterate_tree(callback, tree, conf, search_list)
-                            })
-                        }
+                            iterate_tree(callback, repo, tree, conf, search_list)
+                        })
                     }
-                    else if (entry.attributes != git_directory_attr
-                             && search_list.length === 1)
+                    else if (entry.attributes != git_directory_attr && search_list.length === 0)
                     {
                         callback(entry, search_list.length)
                     }
@@ -272,7 +261,7 @@ module.exports = {
                          * that provides us the ability to match filenames that
                          * don't have their extensions provided.
                          */
-                        iterate_tree(handle_matching_entry, tree, {
+                        iterate_tree(handle_matching_entry, repo, tree, {
                             validator: function validate_filename (possibility, search_list) {
                                 // All exact matches are matches.
                                 if (possibility == search_list[0])
@@ -293,6 +282,11 @@ module.exports = {
             })
         }
 
+        /**
+         * Open our git repository. If it does not exist and we want git repositories
+         * to be created automatically, then have it created. If it exists, then
+         * begin our search.
+         */
         function open_repository () {
             git.openRepository(settings.source.root, function repo_opened(err, _repo) {
                 if (err) {
@@ -317,6 +311,10 @@ module.exports = {
         }
 
         open_repository()
+    },
+
+    update: function update_file (callback, filename, settings) {
+        
     },
 
     get: function get_file(callback, filename, _settings) {
