@@ -6,6 +6,7 @@ Change List
 
 0.0.01-prototype
 ----------------
+
 * Added a data source using git as a backend instead of the previous flat file support.
 * Completely removed support for flat-file repositories.
 * Added an (untested) generic application in index.js for running standalone
