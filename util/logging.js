@@ -1,4 +1,4 @@
-var sys = require('sys')
+var util = require('util')
 
 module.exports = {
 
@@ -22,7 +22,7 @@ module.exports = {
 
         if (settings.log.verbose || level >= settings.log.level)
         {
-            sys.puts([settings.log.prefix, arguments[2]].join(': '))
+            util.puts([settings.log.prefix, arguments[2]].join(': '))
         }
     }
 }
