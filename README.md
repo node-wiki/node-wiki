@@ -2,7 +2,7 @@ node-wiki
 =========
 
 *NOTE:* Any followers that are here noticing a large change in this repository
-should refer to the section of this files called "A Note on Changes".
+should refer to the section of this file called "A Note on Changes".
 
 What is this?
 -------------
