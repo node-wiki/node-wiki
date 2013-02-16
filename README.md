@@ -27,5 +27,5 @@ is available on the [version 0.0.1-prototype][0.0.1-prototype] branch.
 
 [gits]: http://gitslave.sourceforge.net/
 [service]: http://github.com/node-wiki/service
-[http-frontend]: http://github.com/node-wiki/http-client
+[http-client]: http://github.com/node-wiki/http-client
 [0.0.1-prototype]: https://github.com/node-wiki/node-wiki/tree/legacy
