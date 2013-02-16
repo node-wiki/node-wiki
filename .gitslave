@@ -1,1 +1,2 @@
 "git@github.com:node-wiki/service.git" "service"
+"git@github.com:node-wiki/http-client.git" "clients/http"
